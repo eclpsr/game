@@ -3,8 +3,13 @@ using namespace sf;
 int main()
 {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Red);
+
+    Texture herotexture; // создаём объект Texture(текстура)
+    herotexture.loadFromFile("src/images/hero.png");// загружаем картинку
+
+    Sprite herosprite; // создаём объект Sprite(спрайт)
+    herosprite.setTexture(herotexture); // передаём в него объект Texture (текстуры)
+    herosprite.setPosition(50, 25); // задаём начальные координаты появления спрайта
 
     while (window.isOpen())
     {
@@ -16,7 +21,7 @@ int main()
         }
 
         window.clear();
-        window.draw(shape);
+        window.draw(herosprite);
         window.display();
     }
 
