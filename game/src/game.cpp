@@ -15,16 +15,13 @@ int main()
     herosprite.setTextureRect(IntRect(0,192,96,96)); //получили нужный нам прямоугольник
     herosprite.setPosition(250, 250); //выводим спрайт в позицию х у
 
-    float heroteleporttimer = 0; // создаём для примера телепортации героя через 3 секунды
+    float CurrentFrame = 0; // Хранит текущий кадр
 
     while (window.isOpen())
     {
     	float time = clock.getElapsedTime().asMicroseconds(); //дать прошедшее время в микросекундах
     	clock.restart(); //перезагружает время
     	time = time/800; //скорость игры
-
-    	heroteleporttimer += time;
-    	if(heroteleporttimer > 3000) {herosprite.setPosition(0, 120); heroteleporttimer = 0; }
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -33,24 +30,33 @@ int main()
                 window.close();
         }
         if ((Keyboard::isKeyPressed(Keyboard::Left)) || (Keyboard::isKeyPressed(Keyboard::A)))  {
+        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
+        	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
+        	herosprite.setTextureRect(IntRect(96*int(CurrentFrame), 96, 96, 96));
         	herosprite.move(-0.1*time, 0);
-        	herosprite.setTextureRect(IntRect(0, 96, 96, 96));
         }
         if ((Keyboard::isKeyPressed(Keyboard::Right)) || (Keyboard::isKeyPressed(Keyboard::D))) {
+        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
+        	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	herosprite.move(0.1*time, 0);
-        	herosprite.setTextureRect(IntRect(0, 192, 96, 96));
+        	herosprite.setTextureRect(IntRect(96*int(CurrentFrame), 192, 96, 96));
         }
         if ((Keyboard::isKeyPressed(Keyboard::Up)) || (Keyboard::isKeyPressed(Keyboard::W))) {
+        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
+        	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	herosprite.move(0, -0.1*time);
-        	herosprite.setTextureRect(IntRect(0, 288, 96, 96));
+        	herosprite.setTextureRect(IntRect(96*int(CurrentFrame), 288, 96, 96));
         }
         if ((Keyboard::isKeyPressed(Keyboard::Down)) || (Keyboard::isKeyPressed(Keyboard::S))) {
+        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
+        	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	herosprite.move(0, 0.1*time);
-        	herosprite.setTextureRect(IntRect(0, 0, 96, 96));
+        	herosprite.setTextureRect(IntRect(96*int(CurrentFrame), 0, 96, 96));
         }
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
         	herosprite.setColor(Color::Red);
+        	herosprite.setScale(2, 2);
         }
 
         window.clear();
