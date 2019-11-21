@@ -4,13 +4,13 @@ int main()
 {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
 
-    Texture herotexture; // создаём объект Texture(текстура)
-    herotexture.loadFromFile("src/images/hero.png");// загружаем картинку
+    Texture herotexture; // СЃРѕР·РґР°РµРј РѕР±СЉРµРєС‚ Texture (С‚РµРєСЃС‚СѓСЂР°).
+    herotexture.loadFromFile("src/images/hero.png"); //Р·Р°РіСЂСѓР¶Р°РµРј РІ РЅРµРіРѕ С„Р°Р№Р»
 
-    Sprite herosprite; // создаём объект Sprite(спрайт)
-    herosprite.setTexture(herotexture); // передаём в него объект Texture (текстуры)
+    Sprite herosprite; //СЃРѕР·РґР°РµРј РѕР±СЉРµРєС‚ Texture (С‚РµРєСЃС‚СѓСЂР°)
+    herosprite.setTexture(herotexture); //РїРµСЂРµРґР°РµРј РІ РЅРµРіРѕ РѕР±СЉРµРєС‚ Image (РёР·РѕР±СЂР°Р¶РµРЅРёСЏ)
     herosprite.setTextureRect(IntRect(0,192,96,96));
-    herosprite.setPosition(50, 25); // задаём начальные координаты появления спрайта
+    herosprite.setPosition(50, 25); //Р·Р°РґР°РµРј РЅР°С‡Р°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕСЏРІР»РµРЅРёСЏ СЃРїСЂР°Р№С‚Р°
 
     while (window.isOpen())
     {
