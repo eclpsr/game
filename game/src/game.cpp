@@ -9,8 +9,8 @@ int main()
 
     Sprite herosprite; //создаем объект Texture (текстура)
     herosprite.setTexture(herotexture); //передаем в него объект Image (изображения)
-    herosprite.setTextureRect(IntRect(0,192,96,96));
-    herosprite.setPosition(50, 25); //задаем начальные координаты появления спрайта
+    herosprite.setTextureRect(IntRect(0,192,96,96)); //получили нужный нам прямоугольник
+    herosprite.setPosition(250, 250); //выводим спрайт в позицию х у
 
     while (window.isOpen())
     {
@@ -19,6 +19,26 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+        	herosprite.move(-0.1, 0);
+        	herosprite.setTextureRect(IntRect(0, 96, 96, 96));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Right)) {
+        	herosprite.move(0.1, 0);
+        	herosprite.setTextureRect(IntRect(0, 192, 96, 96));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+        	herosprite.move(0, -0.1);
+        	herosprite.setTextureRect(IntRect(0, 288, 96, 96));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Down)) {
+        	herosprite.move(0, 0.1);
+        	herosprite.setTextureRect(IntRect(0, 0, 96, 96));
+        }
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+        	herosprite.setColor(Color::Red);
         }
 
         window.clear();
