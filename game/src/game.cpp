@@ -9,6 +9,7 @@ int main()
 
     Sprite herosprite; // создаём объект Sprite(спрайт)
     herosprite.setTexture(herotexture); // передаём в него объект Texture (текстуры)
+    herosprite.setTextureRect(IntRect(0,192,96,96));
     herosprite.setPosition(50, 25); // задаём начальные координаты появления спрайта
 
     while (window.isOpen())
