@@ -1,11 +1,13 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
 #include "map.h"
+#include "view.h"
 using namespace sf;
 
 class Player {
+private: float x,y;
 public:
-	float x, y, w, h, dx, dy, speed;
+	float w, h, dx, dy, speed;
 	int dir; // направление игрока
 	String File; // файл с расширением
 	Image image; // sfml изображение
@@ -28,6 +30,13 @@ void update(float time) {
   sprite.setPosition(x,y);
 }
 
+float getplayercoordinateX(){
+	return x;
+}
+float getplayercoordinateY(){
+	return y;
+}
+
 };
 
 Player::Player(String F, float X, float Y, float W, float H){
@@ -46,7 +55,7 @@ sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту оди
 int main()
 {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
-
+    view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
     // *** MAP *** - B
     Image map_image; // объект изображения для карты
     map_image.loadFromFile("src/images/map.png"); // загружаем файл для карты
@@ -73,29 +82,33 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        if ((Keyboard::isKeyPressed(Keyboard::Left)) || (Keyboard::isKeyPressed(Keyboard::A)))  {
+        if (Keyboard::isKeyPressed(Keyboard::Left)){
         	p.dir = 1; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 96, 96, 96));
+        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
-        if ((Keyboard::isKeyPressed(Keyboard::Right)) || (Keyboard::isKeyPressed(Keyboard::D))) {
+        if (Keyboard::isKeyPressed(Keyboard::Right)){
         	p.dir = 0; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 192, 96, 96));
+        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
-        if ((Keyboard::isKeyPressed(Keyboard::Up)) || (Keyboard::isKeyPressed(Keyboard::W))) {
+        if (Keyboard::isKeyPressed(Keyboard::Up)){
         	p.dir = 3; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 288, 96, 96));
+        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
-        if ((Keyboard::isKeyPressed(Keyboard::Down)) || (Keyboard::isKeyPressed(Keyboard::S))) {
+        if (Keyboard::isKeyPressed(Keyboard::Down)){
         	p.dir = 2; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 0, 96, 96));
+        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
@@ -104,6 +117,8 @@ int main()
         }
 
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
+
+        window.setView(view); // "оживляем" камеру в окне sfml
 
         window.clear();
         // *** Рисуем карту *** - B
