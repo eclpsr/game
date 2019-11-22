@@ -84,7 +84,7 @@ int main()
         }
         if (Keyboard::isKeyPressed(Keyboard::Left)){
         	p.dir = 1; p.speed = 0.1; // dir направление, speed скорость
-        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
+        	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам"
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 96, 96, 96));
         	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
