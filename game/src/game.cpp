@@ -49,7 +49,7 @@ texture.loadFromImage(image); // загружаем изображение в т
 sprite.setTexture(texture); //заливаем спрайт текстурой
 x = X; y = Y; //координата появления спрайта
 sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту один прямоугольник для вывода одного льва, а не кучи сразу.
-// IntRect - приведение типов.
+// IntRect - приведение типов
 }
 
 int main()
