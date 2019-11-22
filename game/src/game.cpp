@@ -117,10 +117,12 @@ int main()
         }
 
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
-
+        viewmap(time); // функция скроллига карты, передаём ей время sfml
+        changeview();
         window.setView(view); // "оживляем" камеру в окне sfml
 
         window.clear();
+
         // *** Рисуем карту *** - B
         for(int i = 0; i < HEIGHT_MAP; i++)
         	for(int j = 0; j < WIDTH_MAP; j++)
