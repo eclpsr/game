@@ -1,5 +1,6 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
+#include "map.h"
 using namespace sf;
 
 class Player {
@@ -45,6 +46,15 @@ sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту оди
 int main()
 {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
+
+    // *** MAP *** - B
+    Image map_image; // объект изображения для карты
+    map_image.loadFromFile("src/images/map.png"); // загружаем файл для карты
+    Texture map; // текстура карты
+    map.loadFromImage(map_image); // заряжаем текстуру картинкой
+    Sprite s_map; // создаём спрайт для карты
+    s_map.setTexture(map); // заливаем текстуру спрайтом
+    // *** MAP *** - E
 
     float CurrentFrame = 0; // Хранит текущий кадр
 	Clock clock; // создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
@@ -96,6 +106,17 @@ int main()
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
 
         window.clear();
+        // *** Рисуем карту *** - B
+        for(int i = 0; i < HEIGHT_MAP; i++)
+        	for(int j = 0; j < WIDTH_MAP; j++)
+        	{
+        		if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
+        		if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(32, 0, 32, 32));
+        		if (TileMap[i][j] == '0') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+                s_map.setPosition(j * 32, i * 32); // по сути раскидывает квадратики, превращая в карту.
+                window.draw(s_map);
+        	}
+        // *** Риcуем карту *** - E
         window.draw(p.sprite);
         window.display();
     }
