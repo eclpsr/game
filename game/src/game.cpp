@@ -5,7 +5,8 @@
 using namespace sf;
 
 class Player {
-private: float x,y;
+private:
+	float x, y;
 public:
 	float w, h, dx, dy, speed;
 	int dir; // направление игрока
@@ -28,6 +29,7 @@ void update(float time) {
   y += dy*time;
   speed = 0;
   sprite.setPosition(x,y);
+  interactionWithMap(); // вызываем функцию, отвечающую за взаимодействие с картой
 }
 
 float getplayercoordinateX(){
@@ -35,6 +37,30 @@ float getplayercoordinateX(){
 }
 float getplayercoordinateY(){
 	return y;
+}
+
+void interactionWithMap() { //ф-ция взаимодействия с картой
+	for(int i = y / 32; i < (y + h) / 32; i++) //проходимся по всей карте, то есть по всем квадратикам размера 32х32
+			for (int j = x / 32; j < (x + w) / 32; j++){ // икс делим на 32, тем самым получаем левый квадратик
+				if (TileMap[i][j] == '0'){ // если наш квадратик соответствует символу 0(стена), то проверяем "направление скорости" персонажа:
+					if (dy>0){ // если мы шли вниз
+						y = i * 32 - h; // то стопорим координату y персонажа. Сначала получаем координату нашего квадратика на карте(стены) и затем вычитаем из высоты спрайта
+					}
+					if (dy<0){
+						y = i * 32 + 32; // аналогично с ходьбюой вверх.
+					}
+					if(dx>0){
+						x = j * 32 - w; // если идем вправо, то координата Х равна стена (символ 0) минус ширина персонажа
+					}
+					if(dx<0){
+						x = j * 32 + 32; // аналогично идём влево
+					}
+				}
+				if (TileMap[i][j] == 's'){ // если символ равен 's' (камень)
+					x = 300; y = 300; // какое-то действие... например телепортация героя
+					TileMap[i][j] = ' '; // убираем камень, типа взяли бонус.
+				}
+			}
 }
 
 };
@@ -87,38 +113,33 @@ int main()
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам"
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 96, 96, 96));
-        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)){
         	p.dir = 0; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 192, 96, 96));
-        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
         if (Keyboard::isKeyPressed(Keyboard::Up)){
         	p.dir = 3; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 288, 96, 96));
-        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)){
         	p.dir = 2; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 0, 96, 96));
-        	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         }
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
         	p.sprite.setColor(Color::Red);
         	p.sprite.setScale(2, 2);
         }
-
+    	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
-        viewmap(time); // функция скроллига карты, передаём ей время sfml
-        changeview();
+
         window.setView(view); // "оживляем" камеру в окне sfml
 
         window.clear();
