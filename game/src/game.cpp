@@ -1,5 +1,6 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
+#include <sstream>
 #include "map.h"
 #include "view.h"
 using namespace sf;
@@ -9,7 +10,7 @@ private:
 	float x, y;
 public:
 	float w, h, dx, dy, speed;
-	int dir; // направление игрока
+	int dir, playerScore; // направление игрока
 	String File; // файл с расширением
 	Image image; // sfml изображение
 	Texture texture; // sfml текстура
@@ -57,7 +58,7 @@ void interactionWithMap() { //ф-ция взаимодействия с карт
 					}
 				}
 				if (TileMap[i][j] == 's'){ // если символ равен 's' (камень)
-					x = 300; y = 300; // какое-то действие... например телепортация героя
+				    playerScore++; // если взял камень, инкремент переменной
 					TileMap[i][j] = ' '; // убираем камень, типа взяли бонус.
 				}
 			}
@@ -66,7 +67,7 @@ void interactionWithMap() { //ф-ция взаимодействия с карт
 };
 
 Player::Player(String F, float X, float Y, float W, float H){
-dx=0; dy=0; speed=0; dir=0;
+dx=0; dy=0; speed=0; dir=0; playerScore=0;
 File = F; //имя файла+расширение
 w = W; h = H; // высота и ширина
 image.loadFromFile("src/images/" + File); // изображение
@@ -82,6 +83,7 @@ int main()
 {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
+
     // *** MAP *** - B
     Image map_image; // объект изображения для карты
     map_image.loadFromFile("src/images/map.png"); // загружаем файл для карты
@@ -90,6 +92,14 @@ int main()
     Sprite s_map; // создаём спрайт для карты
     s_map.setTexture(map); // заливаем текстуру спрайтом
     // *** MAP *** - E
+
+    // *** TEXT *** - B
+    Font font;
+    font.loadFromFile("src/fonts/Helvetica.otf");
+    Text text("", font, 20);
+    text.setColor(sf::Color::Red);
+    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    // *** TEXT *** - E
 
     float CurrentFrame = 0; // Хранит текущий кадр
 	Clock clock; // создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
@@ -124,7 +134,7 @@ int main()
         	p.dir = 3; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам".
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
-        	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 288, 96, 96));
+        	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 307, 96, 96));
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)){
         	p.dir = 2; p.speed = 0.1; // dir направление, speed скорость
@@ -155,7 +165,17 @@ int main()
                 window.draw(s_map);
         	}
         // *** Риcуем карту *** - E
+
         window.draw(p.sprite);
+
+        /// *** Выводим текст *** - B
+        std::ostringstream playerScoreString; // объявили строку
+        playerScoreString << p.playerScore; // передали число очков
+        text.setString("Stones collected:" + playerScoreString.str());
+        text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 240);
+        window.draw(text);
+        /// *** Выводим текст *** - E
+
         window.display();
     }
 
