@@ -10,7 +10,8 @@ private:
 	float x, y;
 public:
 	float w, h, dx, dy, speed;
-	int dir, playerScore; // направление игрока
+	int dir, playerScore, health;
+	bool life;
 	String File; // файл с расширением
 	Image image; // sfml изображение
 	Texture texture; // sfml текстура
@@ -31,6 +32,7 @@ void update(float time) {
   speed = 0;
   sprite.setPosition(x,y);
   interactionWithMap(); // вызываем функцию, отвечающую за взаимодействие с картой
+  if (health <= 0){ life = false; speed = 0; }
 }
 
 float getplayercoordinateX(){
@@ -61,13 +63,22 @@ void interactionWithMap() { //ф-ция взаимодействия с карт
 				    playerScore++; // если взял камень, инкремент переменной
 					TileMap[i][j] = ' '; // убираем камень, типа взяли бонус.
 				}
+				if (TileMap[i][j] == 'f'){
+				    health -= 40;
+					TileMap[i][j] = ' ';
+				}
+				if (TileMap[i][j] == 'h'){
+				    health += 20;
+					TileMap[i][j] = ' ';
+				}
 			}
 }
 
 };
 
 Player::Player(String F, float X, float Y, float W, float H){
-dx=0; dy=0; speed=0; dir=0; playerScore=0;
+dx=0; dy=0; speed=0; dir=0; playerScore=0; health = 100;
+life = true;
 File = F; //имя файла+расширение
 w = W; h = H; // высота и ширина
 image.loadFromFile("src/images/" + File); // изображение
@@ -99,16 +110,22 @@ int main()
     Text text("", font, 20);
     text.setColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    Text text2("", font, 20);
+    text2.setColor(sf::Color::Red);
+    text2.setStyle(sf::Text::Bold | sf::Text::Underlined);
     // *** TEXT *** - E
 
     float CurrentFrame = 0; // Хранит текущий кадр
 	Clock clock; // создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
+	Clock gameTimeClock;
+	int gameTime = 0;
 
 	Player p("hero.png", 250, 250, 96.0, 96.0); // создаем объект p класса player
 
     while (window.isOpen())
     {
     	float time = clock.getElapsedTime().asMicroseconds(); //дать прошедшее время в микросекундах
+    	if(p.life) gameTime=gameTimeClock.getElapsedTime().asSeconds(); // игровое время пока игрок жив
     	clock.restart(); //перезагружает время
     	time = time/800; //скорость игры
 
@@ -118,6 +135,7 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+        if (p.life){
         if (Keyboard::isKeyPressed(Keyboard::Left)){
         	p.dir = 1; p.speed = 0.1; // dir направление, speed скорость
         	CurrentFrame += 0.005*time; // служит для прохождения по "кадрам"
@@ -147,6 +165,7 @@ int main()
         	p.sprite.setColor(Color::Red);
         	p.sprite.setScale(2, 2);
         }
+        }
     	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
 
@@ -161,6 +180,8 @@ int main()
         		if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
         		if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(32, 0, 32, 32));
         		if (TileMap[i][j] == '0') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+        		if (TileMap[i][j] == 'f') s_map.setTextureRect(IntRect(96, 0, 32, 32));
+        		if (TileMap[i][j] == 'h') s_map.setTextureRect(IntRect(128, 0, 32, 32));
                 s_map.setPosition(j * 32, i * 32); // по сути раскидывает квадратики, превращая в карту.
                 window.draw(s_map);
         	}
@@ -174,6 +195,12 @@ int main()
         text.setString("Stones collected:" + playerScoreString.str());
         text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 240);
         window.draw(text);
+
+        std::ostringstream playerHealthString, gameTimeString; // объявили строку
+        playerHealthString << p.health; gameTimeString << gameTime; // передали число очков
+        text2.setString("Health:" + playerHealthString.str() + "\nGame time: " + gameTimeString.str());
+        text2.setPosition(view.getCenter().x - 310 , view.getCenter().y - 210);
+        window.draw(text2);
         /// *** Выводим текст *** - E
 
         window.display();
