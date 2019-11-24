@@ -3,6 +3,8 @@
 #include <sstream>
 #include "map.h"
 #include "view.h"
+#include "mission.h"
+
 using namespace sf;
 
 class Player {
@@ -92,6 +94,8 @@ sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту оди
 
 int main()
 {
+    bool showMissionText = true;
+
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
 
@@ -108,12 +112,22 @@ int main()
     Font font;
     font.loadFromFile("src/fonts/Helvetica.otf");
     Text text("", font, 20);
-    text.setColor(sf::Color::Red);
-    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    text.setColor(sf::Color::Black);
     Text text2("", font, 20);
-    text2.setColor(sf::Color::Red);
-    text2.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    text2.setColor(sf::Color::Black);
     // *** TEXT *** - E
+
+    // *** MISSION *** - B
+    Image quest_image;
+    	quest_image.loadFromFile("src/images/missionbg.jpg");
+    	quest_image.createMaskFromColor(Color(0, 0, 0));
+    	Texture quest_texture;
+    	quest_texture.loadFromImage(quest_image);
+    	Sprite s_quest;
+    	s_quest.setTexture(quest_texture);
+    	s_quest.setTextureRect(IntRect(0, 0, 340, 510));
+    	s_quest.setScale(0.6f, 0.6f);
+    // *** MISSION *** - E
 
     float CurrentFrame = 0; // Хранит текущий кадр
 	Clock clock; // создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
@@ -134,6 +148,26 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if(event.type == Event::KeyPressed)
+            	if ((event.key.code) == Keyboard::Tab) {
+            		switch(showMissionText){
+            		case true: {
+            			std::ostringstream playerHealthString;
+            			playerHealthString << p.health;
+            			std::ostringstream task;
+            			task << getTextMission(getCurrentMission(p.getplayercoordinateX()));
+            			text.setString("Health:" + playerHealthString.str() + "\n" + task.str());
+            			showMissionText = false;
+            			break;
+            		}
+            		case false: {
+            			text.setString("");
+            			showMissionText = true;
+            			break;
+            		}
+            		}
+            	}
         }
         if (p.life){
         if (Keyboard::isKeyPressed(Keyboard::Left)){
@@ -174,6 +208,7 @@ int main()
         window.clear();
 
         // *** Рисуем карту *** - B
+ if((getCurrentMission(p.getplayercoordinateX())) == 0){
         for(int i = 0; i < HEIGHT_MAP; i++)
         	for(int j = 0; j < WIDTH_MAP; j++)
         	{
@@ -185,23 +220,44 @@ int main()
                 s_map.setPosition(j * 32, i * 32); // по сути раскидывает квадратики, превращая в карту.
                 window.draw(s_map);
         	}
+ }
+
+ if((getCurrentMission(p.getplayercoordinateX())) >= 1){
+        for(int i = 0; i < HEIGHT_MAP; i++)
+        	for(int j = 0; j < WIDTH_MAP; j++)
+        	{
+        		if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+        		if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(32, 0, 32, 32));
+        		if (TileMap[i][j] == '0') s_map.setTextureRect(IntRect(0, 0, 32, 32));
+        		if (TileMap[i][j] == 'f') s_map.setTextureRect(IntRect(96, 0, 32, 32));
+        		if (TileMap[i][j] == 'h') s_map.setTextureRect(IntRect(128, 0, 32, 32));
+                s_map.setPosition(j * 32, i * 32); // по сути раскидывает квадратики, превращая в карту.
+                window.draw(s_map);
+        	}
+ }
+
         // *** Риcуем карту *** - E
 
-        window.draw(p.sprite);
-
         /// *** Выводим текст *** - B
-        std::ostringstream playerScoreString; // объявили строку
+       /* std::ostringstream playerScoreString; // объявили строку
         playerScoreString << p.playerScore; // передали число очков
         text.setString("Stones collected:" + playerScoreString.str());
         text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 240);
-        window.draw(text);
+        window.draw(text); */
 
-        std::ostringstream playerHealthString, gameTimeString; // объявили строку
+       /* std::ostringstream playerHealthString, gameTimeString; // объявили строку
         playerHealthString << p.health; gameTimeString << gameTime; // передали число очков
-        text2.setString("Health:" + playerHealthString.str() + "\nGame time: " + gameTimeString.str());
-        text2.setPosition(view.getCenter().x - 310 , view.getCenter().y - 210);
-        window.draw(text2);
+        text.setString("Health:" + playerHealthString.str() + "\nGame time: " + gameTimeString.str());
+        text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 210); */
+        //window.draw(text2);
+
+        if (!showMissionText) {
+        	text.setPosition(view.getCenter().x + 125, view.getCenter().y - 130);//позиция всего этого текстового блока
+        	s_quest.setPosition(view.getCenter().x + 115, view.getCenter().y - 130);//позиция фона для блока
+        	window.draw(s_quest); window.draw(text);
+        }
         /// *** Выводим текст *** - E
+        window.draw(p.sprite);
 
         window.display();
     }
