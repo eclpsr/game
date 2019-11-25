@@ -9,8 +9,9 @@ using namespace sf;
 
 class Player {
 private:
-	float x, y;
+
 public:
+	float x, y;
 	float w, h, dx, dy, speed;
 	int dir, playerScore, health;
 	bool life;
@@ -95,6 +96,8 @@ sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту оди
 int main()
 {
     bool showMissionText = true;
+    bool isMove = false; // переменная для щелчка мыши по спрайту
+    float dX = 0; float dY = 0; // корректировка нажатия по х и y
 
     RenderWindow window(sf::VideoMode(1366, 768), "SFML works!", Style::Fullscreen);
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
@@ -147,6 +150,9 @@ int main()
     	clock.restart(); //перезагружает время
     	time = time/800; //скорость игры
 
+    	Vector2i pixelPos = Mouse::getPosition(window); // забираем коорд курсора
+    	Vector2f pos = window.mapPixelToCoords(pixelPos); // переводим их в игровые(уходим от коорд окна)
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -179,7 +185,32 @@ int main()
             		createObjectForMapTimer = 0; // обнуляем таймер
             	}
             	// *** Генерация камней *** - E
+
+            	// *** Передвижение объекта *** - B
+            	if(event.type == Event::MouseButtonPressed)
+            		if(event.key.code == Mouse::Left)
+            			if (p.sprite.getGlobalBounds().contains(pos.x, pos.y)){
+            				//std::cout << "isClicked!\n"; // выводим в консоль сообщение об этом
+            				dX = pos.x - p.sprite.getPosition().x; // делаем разность между позицией курсора и спрайта для корректировки нажатия
+            				dY = pos.y - p.sprite.getPosition().y; // тоже самое по игреку
+            				isMove = true; // можем двигать спрайт
+            			}
+
+            	if (event.type == Event::MouseButtonReleased) // если отпустили клавишу
+            		if (event.key.code == Mouse::Left) // а именно левую
+            			isMove = false; // то не можем двигать спрайт
+            			p.sprite.setColor(Color::White); // и даем ему прежний цвет
+            	// *** Передвижение объекта *** - E
         }
+
+        /// *** Двигаем спрайт мышью *** - B
+        if(isMove){
+        	p.sprite.setColor(Color::Green); // красим спрайт в зелёный
+        	p.x = pos.x-dX; // двигаем спрайт по X
+        	p.y = pos.y-dY; // двигаем спрайт по Y
+        }
+        /// *** Двигаем спрайт мышью *** - E
+
         if (p.life){
         if (Keyboard::isKeyPressed(Keyboard::Left)){
         	p.dir = 1; p.speed = 0.1; // dir направление, speed скорость
@@ -205,11 +236,6 @@ int main()
         	if(CurrentFrame > 3) CurrentFrame -= 3; // если пришли к третьему кадру - откидываемся назад
         	p.sprite.setTextureRect(IntRect(96*int(CurrentFrame), 0, 96, 96));
         }
-        if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
-        	p.sprite.setColor(Color::Red);
-        	p.sprite.setScale(2, 2);
-        }
         }
         sf::Vector2i localPosition = Mouse::getPosition(window); // заносим в вектор координаты мыши
         if (localPosition.x < 3) { view.move(-0.2*time, 0); }
@@ -217,7 +243,7 @@ int main()
         	if (localPosition.y > window.getSize().y-3) { view.move(0, 0.2*time); } // нижний край - вниз
         	if (localPosition.y < 3) { view.move(0, -0.2*time); } // верхний край - вверх
 
-    	//getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
+
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
 
         window.setView(view); // "оживляем" камеру в окне sfml
