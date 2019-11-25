@@ -96,7 +96,7 @@ int main()
 {
     bool showMissionText = true;
 
-    RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
+    RenderWindow window(sf::VideoMode(1366, 768), "SFML works!", Style::Fullscreen);
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
 
     // *** MAP *** - B
@@ -200,7 +200,13 @@ int main()
         	p.sprite.setScale(2, 2);
         }
         }
-    	getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
+        sf::Vector2i localPosition = Mouse::getPosition(window); // заносим в вектор координаты мыши
+        if (localPosition.x < 3) { view.move(-0.2*time, 0); }
+        	if (localPosition.x > window.getSize().x-3) { view.move(0.2*time, 0); } // правый край-право
+        	if (localPosition.y > window.getSize().y-3) { view.move(0, 0.2*time); } // нижний край - вниз
+        	if (localPosition.y < 3) { view.move(0, -0.2*time); } // верхний край - вверх
+
+    	//getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
 
         window.setView(view); // "оживляем" камеру в окне sfml
@@ -235,22 +241,8 @@ int main()
                 window.draw(s_map);
         	}
  }
-
         // *** Риcуем карту *** - E
-
-        /// *** Выводим текст *** - B
-       /* std::ostringstream playerScoreString; // объявили строку
-        playerScoreString << p.playerScore; // передали число очков
-        text.setString("Stones collected:" + playerScoreString.str());
-        text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 240);
-        window.draw(text); */
-
-       /* std::ostringstream playerHealthString, gameTimeString; // объявили строку
-        playerHealthString << p.health; gameTimeString << gameTime; // передали число очков
-        text.setString("Health:" + playerHealthString.str() + "\nGame time: " + gameTimeString.str());
-        text.setPosition(view.getCenter().x - 310 , view.getCenter().y - 210); */
-        //window.draw(text2);
-
+ 	 	/// *** Выводим текст *** - B
         if (!showMissionText) {
         	text.setPosition(view.getCenter().x + 125, view.getCenter().y - 130);//позиция всего этого текстового блока
         	s_quest.setPosition(view.getCenter().x + 115, view.getCenter().y - 130);//позиция фона для блока
