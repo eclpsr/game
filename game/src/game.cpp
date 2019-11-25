@@ -108,6 +108,8 @@ int main()
     s_map.setTexture(map); // заливаем текстуру спрайтом
     // *** MAP *** - E
 
+    randomMapGenerate(); // генерируем камешки
+
     // *** TEXT *** - B
     Font font;
     font.loadFromFile("src/fonts/Helvetica.otf");
@@ -135,6 +137,8 @@ int main()
 	int gameTime = 0;
 
 	Player p("hero.png", 250, 250, 96.0, 96.0); // создаем объект p класса player
+
+	int createObjectForMapTimer = 0; // переменная для генерации камней
 
     while (window.isOpen())
     {
@@ -168,6 +172,13 @@ int main()
             		}
             		}
             	}
+            // *** Генерация камней *** - B
+            createObjectForMapTimer += time;
+            	if(createObjectForMapTimer>3000){
+            		randomMapGenerate(); // генерация случ камней
+            		createObjectForMapTimer = 0; // обнуляем таймер
+            	}
+            	// *** Генерация камней *** - E
         }
         if (p.life){
         if (Keyboard::isKeyPressed(Keyboard::Left)){
