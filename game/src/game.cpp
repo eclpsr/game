@@ -15,6 +15,7 @@ public:
 	float w, h, dx, dy, speed;
 	int dir, playerScore, health;
 	bool life;
+	bool isMove, isSelect; // добавили переменные состояния движения и выбора объекта
 	String File; // файл с расширением
 	Image image; // sfml изображение
 	Texture texture; // sfml текстура
@@ -81,7 +82,7 @@ void interactionWithMap() { //ф-ция взаимодействия с карт
 
 Player::Player(String F, float X, float Y, float W, float H){
 dx=0; dy=0; speed=0; dir=0; playerScore=0; health = 100;
-life = true;
+life = true; isMove = false; isSelect = false;
 File = F; //имя файла+расширение
 w = W; h = H; // высота и ширина
 image.loadFromFile("src/images/" + File); // изображение
@@ -98,6 +99,9 @@ int main()
     bool showMissionText = true;
     bool isMove = false; // переменная для щелчка мыши по спрайту
     float dX = 0; float dY = 0; // корректировка нажатия по х и y
+    int tempX = 0; // временная кооорд. Х. Снимаем её после нажатия прав клав мыши
+    int tempY = 0; // коорд Y
+    float distance = 0; // это расстояие от объекта до тыка курсора
 
     RenderWindow window(sf::VideoMode(1366, 768), "SFML works!", Style::Fullscreen);
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
