@@ -4,6 +4,7 @@
 #include "map.h"
 #include "view.h"
 #include "mission.h"
+#include <cmath>
 
 using namespace sf;
 
@@ -194,25 +195,42 @@ int main()
             	if(event.type == Event::MouseButtonPressed)
             		if(event.key.code == Mouse::Left)
             			if (p.sprite.getGlobalBounds().contains(pos.x, pos.y)){
-            				//std::cout << "isClicked!\n"; // выводим в консоль сообщение об этом
-            				dX = pos.x - p.sprite.getPosition().x; // делаем разность между позицией курсора и спрайта для корректировки нажатия
-            				dY = pos.y - p.sprite.getPosition().y; // тоже самое по игреку
-            				isMove = true; // можем двигать спрайт
+            				p.sprite.setColor(Color::Green); // красим спрайт в зелёный цвет
+            				p.isSelect = true;
             			}
 
-            	if (event.type == Event::MouseButtonReleased) // если отпустили клавишу
+            	/* if (event.type == Event::MouseButtonReleased) // если отпустили клавишу
             		if (event.key.code == Mouse::Left) // а именно левую
             			isMove = false; // то не можем двигать спрайт
-            			p.sprite.setColor(Color::White); // и даем ему прежний цвет
+            			p.sprite.setColor(Color::White); // и даем ему прежний цвет */
             	// *** Передвижение объекта *** - E
+
+            	if (p.isSelect)
+            		if (event.type == Event::MouseButtonPressed)
+            			if (event.key.code == Mouse::Right){
+            				p.isMove = true;
+            				p.isSelect = false;
+            				p.sprite.setColor(Color::White);
+            				tempX = pos.x;
+            				tempY = pos.y;
+            			}
+        }
+
+        if(p.isMove){
+        	distance = sqrt((tempX - p.x)*(tempX - p.x) + (tempY - p.y)*(tempY - p.y));
+        	if(distance > 2){
+        		p.x += 0.1*time*(tempX - p.x) / distance; // идем по иксу с помощью вектора нормали
+        		p.y += 0.1*time*(tempY - p.y) / distance; // идем по игреку так же
+        	}
+        	else { p.isMove = false; }
         }
 
         /// *** Двигаем спрайт мышью *** - B
-        if(isMove){
+       /* if(isMove){
         	p.sprite.setColor(Color::Green); // красим спрайт в зелёный
         	p.x = pos.x-dX; // двигаем спрайт по X
         	p.y = pos.y-dY; // двигаем спрайт по Y
-        }
+        } */
         /// *** Двигаем спрайт мышью *** - E
 
         if (p.life){
