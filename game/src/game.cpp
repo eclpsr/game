@@ -87,7 +87,7 @@ life = true; isMove = false; isSelect = false;
 File = F; //имя файла+расширение
 w = W; h = H; // высота и ширина
 image.loadFromFile("src/images/" + File); // изображение
-image.createMaskFromColor(Color(41, 33, 59)); //убираем темно-синий цвет
+image.createMaskFromColor(Color(0, 0, 255)); //убираем темно-синий цвет
 texture.loadFromImage(image); // загружаем изображение в текстуру
 sprite.setTexture(texture); //заливаем спрайт текстурой
 x = X; y = Y; //координата появления спрайта
@@ -104,7 +104,7 @@ int main()
     int tempY = 0; // коорд Y
     float distance = 0; // это расстояие от объекта до тыка курсора
 
-    RenderWindow window(sf::VideoMode(1366, 768), "SFML works!", Style::Fullscreen);
+    RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
 
     // *** MAP *** - B
@@ -144,7 +144,7 @@ int main()
 	Clock gameTimeClock;
 	int gameTime = 0;
 
-	Player p("hero.png", 250, 250, 96.0, 96.0); // создаем объект p класса player
+	Player p("heroForRotate.png", 250, 250, 136, 74); // создаем объект p класса player
 
 	int createObjectForMapTimer = 0; // переменная для генерации камней
 
@@ -199,12 +199,6 @@ int main()
             				p.isSelect = true;
             			}
 
-            	/* if (event.type == Event::MouseButtonReleased) // если отпустили клавишу
-            		if (event.key.code == Mouse::Left) // а именно левую
-            			isMove = false; // то не можем двигать спрайт
-            			p.sprite.setColor(Color::White); // и даем ему прежний цвет */
-            	// *** Передвижение объекта *** - E
-
             	if (p.isSelect)
             		if (event.type == Event::MouseButtonPressed)
             			if (event.key.code == Mouse::Right){
@@ -213,6 +207,11 @@ int main()
             				p.sprite.setColor(Color::White);
             				tempX = pos.x;
             				tempY = pos.y;
+            		        float dX = pos.x - p.x;  // вектор, колинеарный прямой, которая пересекает спрайт и курсор
+            		        float dY = pos.y - p.y; // он же, координата y
+            		        float rotation = (atan2(dY, dX)) * 180 / 3.14159265; // получаем угол в радианах и переводим его в градусы
+            		        std:: cout << rotation << "\n"; //  смотрим на градусы в консольке
+            		        p.sprite.setRotation(rotation); // поворачиваем спрайт на эти градусы
             			}
         }
 
@@ -224,14 +223,6 @@ int main()
         	}
         	else { p.isMove = false; }
         }
-
-        /// *** Двигаем спрайт мышью *** - B
-       /* if(isMove){
-        	p.sprite.setColor(Color::Green); // красим спрайт в зелёный
-        	p.x = pos.x-dX; // двигаем спрайт по X
-        	p.y = pos.y-dY; // двигаем спрайт по Y
-        } */
-        /// *** Двигаем спрайт мышью *** - E
 
         if (p.life){
         if (Keyboard::isKeyPressed(Keyboard::Left)){
