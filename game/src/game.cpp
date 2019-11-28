@@ -1,7 +1,6 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
-#include <sstream>
-// #include "map.h"
+#include "iostream"
 #include "view.h"
 #include "mission.h"
 #include <cmath>
@@ -19,6 +18,7 @@ public:
 	Texture texture;
 	Sprite sprite;
 	String name;
+
 	Entity(Image &image, String Name, float X, float Y, int W, int H ){
 		x = X; y = Y; w = W; h = H; name = Name; moveTimer = 0;
 		speed = 0; health = 100; dx = 0; dy = 0;
@@ -30,6 +30,8 @@ public:
 	FloatRect getRect() { //ф-ция получения прямоугольника. его коорд.размеры(шир, высот)
 		return FloatRect(x, y, w, h); // эта ф-ция нужна для проверки столкновений
 	}
+
+	virtual void update(float time) = 0;
 };
 
 class Player:public Entity {
@@ -75,17 +77,6 @@ void control(){
 }
 
 void checkCollisionWithMap(float Dx, float Dy) {
-	/* for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
-	for (int j = x / 32; j<(x + w) / 32; j++)
-	{
-	if (TileMap[i][j] == '0')//если элемент наш тайлик земли? то
-	{
-	if (Dy>0){y = i * 32 - h;  dy = 0; onGround = true;}//по Y вниз=>идем в пол(стоим на месте) или падаем. В этот момент надо вытолкнуть персонажа и поставить его на землю, при этом говорим что мы на земле тем самым снова можем прыгать
-	if (Dy<0){y = i * 32 + 32;  dy = 0;}//столкновение с верхними краями карты(может и не пригодиться)
-	if (Dx>0){x = j * 32 - w;}//с правым краем карты
-	if (Dx<0){x = j * 32 + 32;}// с левым краем карты
-	}
-	} */
 	for (int i = 0; i<obj.size(); i++)//проходимся по объектам
 	if (getRect().intersects(obj[i].rect))//проверяем пересечение игрока с объектом
 	{
@@ -119,15 +110,6 @@ void update(float time) {
   if(life){ setPlayerCoordinateForView(x, y); }
   dy = dy + 0.0015*time;
 }
-
-/*float getplayercoordinateX(){
-	return x;
-}
-
-float getplayercoordinateY(){
-	return y;
-} */
-
 };
 
 class Enemy :public Entity{
@@ -141,17 +123,6 @@ dx = 0.1;
 }
 void checkCollisionWithMap(float Dx, float Dy)//ф ция проверки столкновений с картой
 {
-/* for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
-for (int j = x / 32; j<(x + w) / 32; j++)
-{
-if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
-{
-if (Dy>0){ y = i * 32 - h; }//по Y вниз=>идем в пол(стоим на месте) или падаем. В этот момент надо вытолкнуть персонажа и поставить его на землю, при этом говорим что мы на земле тем самым снова можем прыгать
-if (Dy<0){ y = i * 32 + 32; }//столкновение с верхними краями карты(может и не пригодиться)
-if (Dx>0){ x = j * 32 - w; dx = -0.1; sprite.scale(-1, 1); }//с правым краем карты
-if (Dx<0){ x = j * 32 + 32; dx = 0.1; sprite.scale(-1, 1); }// с левым краем карты
-}
-} */
 	for (int i = 0; i<obj.size(); i++)//проходимся по объектам
 	if (getRect().intersects(obj[i].rect))//проверяем пересечение игрока с объектом
 	{
@@ -166,7 +137,6 @@ if (Dx<0){ x = j * 32 + 32; dx = 0.1; sprite.scale(-1, 1); }// с левым к�
 void update(float time)
 {
 if (name == "EasyEnemy"){//для персонажа с таким именем логика будет такой
-//moveTimer += time;if (moveTimer>3000){ dx *= -1; moveTimer = 0; }//меняет направление примерно каждые 3 сек
 checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Х
 x += dx*time;
 sprite.setPosition(x + w / 2, y + h / 2); //задаем позицию спрайта в место его центра
@@ -179,27 +149,24 @@ int main() {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
 
+    std::list<Entity*>  entities;//создаю список, сюда буду кидать объекты.например врагов.
+    std::list<Entity*>::iterator it;//итератор чтобы проходить по эл-там списка
+
     Level lvl; // создали экземпляр класса уровень
     lvl.LoadFromFile("src/map.tmx");
-/*
-    Image map_image; // объект изображения для карты
-    map_image.loadFromFile("src/images/map.png"); // загружаем файл для карты
-    Texture map; // текстура карты
-    map.loadFromImage(map_image); // заряжаем текстуру картинкой
-    Sprite s_map; // создаём спрайт для карты
-    s_map.setTexture(map); // заливаем текстуру спрайтом
-*/
+
     Image heroImage;
     heroImage.loadFromFile("src/images/MilesTailsPrower.gif");
 
     Image easyEnemyImage;
-	easyEnemyImage.loadFromFile("src/images/shamaich.png");
-	easyEnemyImage.createMaskFromColor(Color(255, 0, 0));
+   	easyEnemyImage.loadFromFile("src/images/shamaich.png");
+   	easyEnemyImage.createMaskFromColor(Color(255, 0, 0));
+       std::vector<Object> e = lvl.GetObjects("EasyEnemy");//все объекты врага на tmx карте хранятся в этом векторе
+       for (int i = 0; i < e.size(); i++)//проходимся по элементам этого вектора(а именно по врагам)
+       	entities.push_back(new Enemy(easyEnemyImage, "EasyEnemy", lvl, e[i].rect.left, e[i].rect.top, 200, 97));//и закидываем в список всех наших врагов с карты
 
 	Object player=lvl.GetObject("player");//объект игрока на нашей карте.задаем координаты игроку в начале при помощи него
-	Object easyEnemyObject = lvl.GetObject("easyEnemy");//объект легкого врага на нашей карте.задаем координаты игроку в начале при помощи него
 	Player p(heroImage, "Player1", lvl, player.rect.left, player.rect.top, 40, 30);//передаем координаты прямоугольника player из карты в координаты нашего игрока
-	Enemy easyEnemy(easyEnemyImage, "EasyEnemy", lvl, easyEnemyObject.rect.left, easyEnemyObject.rect.top, 200, 97);//передаем координаты прямоугольника easyEnemy из карты в координаты нашего врага
 
 	Clock clock;
     while (window.isOpen())
@@ -216,23 +183,13 @@ int main() {
                 window.close();
         }
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
-        easyEnemy.update(time);
+        for (it = entities.begin(); it != entities.end(); it++) { (*it)->update(time);}//для всех элементов списка(пока это только враги,но могут быть и пули к примеру) активируем ф-цию update
         window.setView(view); // "оживляем" камеру в окне sfml
         window.clear(Color(77,83,140));
         lvl.Draw(window); // рисуем новую карту
-      /*
-        for(int i = 0; i < HEIGHT_MAP; i++)
-        	for(int j = 0; j < WIDTH_MAP; j++)
-        	{
-        		if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
-        		if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(32, 0, 32, 32));
-        		if (TileMap[i][j] == '0') s_map.setTextureRect(IntRect(64, 0, 32, 32));
-        		if (TileMap[i][j] == 'f') s_map.setTextureRect(IntRect(96, 0, 32, 32));
-        		if (TileMap[i][j] == 'h') s_map.setTextureRect(IntRect(128, 0, 32, 32));
-                s_map.setPosition(j * 32, i * 32); // по сути раскидывает квадратики, превращая в карту.
-                window.draw(s_map);
-        	} */
-        window.draw(easyEnemy.sprite);
+        for (it = entities.begin(); it != entities.end(); it++){
+        window.draw((*it)->sprite); //рисуем entities объекты (сейчас это только враги)
+        }
         window.draw(p.sprite);
         window.display();
     }
