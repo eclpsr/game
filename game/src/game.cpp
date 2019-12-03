@@ -4,8 +4,8 @@
 #include "view.h"
 #include "mission.h"
 #include <cmath>
-#include<vector>
-#include<list>
+#include <vector>
+#include <list>
 #include "level.h"
 
 using namespace sf;
@@ -149,7 +149,7 @@ int main() {
     RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     view.reset(sf::FloatRect(0, 0, 640, 480)); // размер "вида" камеры при создании объекта вида камеры.
 
-    std::list<Entity*>  entities;//создаю список, сюда буду кидать объекты.например врагов.
+    std::list<Entity*> entities;//создаю список, сюда буду кидать объекты.например врагов.
     std::list<Entity*>::iterator it;//итератор чтобы проходить по эл-там списка
 
     Level lvl; // создали экземпляр класса уровень
@@ -161,6 +161,7 @@ int main() {
     Image easyEnemyImage;
    	easyEnemyImage.loadFromFile("src/images/shamaich.png");
    	easyEnemyImage.createMaskFromColor(Color(255, 0, 0));
+
        std::vector<Object> e = lvl.GetObjects("EasyEnemy");//все объекты врага на tmx карте хранятся в этом векторе
        for (int i = 0; i < e.size(); i++)//проходимся по элементам этого вектора(а именно по врагам)
        	entities.push_back(new Enemy(easyEnemyImage, "EasyEnemy", lvl, e[i].rect.left, e[i].rect.top, 200, 97));//и закидываем в список всех наших врагов с карты
@@ -183,7 +184,29 @@ int main() {
                 window.close();
         }
         p.update(time); //оживляем объект p класса Player с помощью времени sfml
-        for (it = entities.begin(); it != entities.end(); it++) { (*it)->update(time);}//для всех элементов списка(пока это только враги,но могут быть и пули к примеру) активируем ф-цию update
+
+        for (it = entities.begin(); it != entities.end();) {
+        	Entity *b = *it;//для удобства, чтобы не писать (*it)->
+        	b->update(time);//вызываем ф-цию update для всех объектов (по сути для тех, кто жив)
+        	if (b->life == false){
+        		it = entities.erase(it); delete b;  // if (entities.empty()) break;
+        	}// если этот объект мертв, то удаляем его
+        	else it++;//и идем курсором (итератором) к след объекту. так делаем со всеми объектами списка
+        }//для всех элементов списка(пока это только враги,но могут быть и пули к примеру) активируем ф-цию update
+
+        for (it = entities.begin(); it != entities.end(); it++)//проходимся по эл-там списка
+        {
+        if ((*it)->getRect().intersects(p.getRect()))//если прямоугольник спрайта объекта пересекается с игроком
+        {
+        if ((*it)->name == "EasyEnemy"){//и при этом имя объекта EasyEnemy,то..
+        if ((p.dy>0) && (p.onGround == false)) { (*it)->dx = 0; p.dy = -0.2; (*it)->health = 0; }//если прыгнули на врага,то даем врагу скорость 0,отпрыгиваем от него чуть вверх,даем ему здоровье 0
+        else {
+        p.health -= 5;	//иначе враг подошел к нам сбоку и нанес урон
+        }
+        }
+        }
+        }
+
         window.setView(view); // "оживляем" камеру в окне sfml
         window.clear(Color(77,83,140));
         lvl.Draw(window); // рисуем новую карту
